@@ -54,3 +54,11 @@ async function fetchNews() {
 
 // 메인 함수 호출
 fetchNews();
+
+// const deleteDodo = (todoItem) =>{
+//     const newTodoList = [
+//     ...todoList]
+
+// new TodoList.splice(todoId);
+// setTodoList(newTodoList);
+// }
