@@ -28,6 +28,7 @@ async function fetchStockPrice() {
                     openPrice: columns.eq(4).text().trim(),
                     highPrice: columns.eq(5).text().trim(),
                     lowPrice: columns.eq(6).text().trim(),
+
                 };
                 dailyStock.push(stockData);
             }
