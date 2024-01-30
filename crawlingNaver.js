@@ -3,10 +3,15 @@ import * as cheerio from 'cheerio';
 import fs from 'fs';
 
 const baseUrl = 'https://search.naver.com/search.naver?where=news&sm=tab_jum&query=%EC%9D%B4%EC%B0%A8%EC%A0%84%EC%A7%80';
+const basePath = './images';
 
 async function fetchNews() {
   try {
     const newsArticles = [];
+
+    if (!fs.existsSync(basePath)) {
+      fs.mkdirSync(basePath);
+    }
 
     for (let page = 1; page <= 5; page++) {
       const start = (page - 1) * 10 + 1;
@@ -22,25 +27,41 @@ async function fetchNews() {
       const $ = cheerio.load(response.data);
       const articleTags = $('ul.list_news li');
 
-      articleTags.each((index, element) => {
+      const promises = articleTags.map(async (index, element) => {
         const article = $(element);
         const headline = article.find('a.news_tit').text().trim();
         const url = article.find('a.news_tit').attr('href');
-        const image = article.find('img.thumb').attr('data-lazysrc');
+        const image = article.find('a.dsc_thumb img').prop('data-lazysrc');
         const content = article.find('div.news_dsc').text().trim();
 
         // 제목과 URL이 비어있지 않은지 확인합니다.
         if (headline && url) {
+          // Generate unique image name
+          const imageName = `image_${page}_${index}.jpg`;
+          const imagePath = `${basePath}/${imageName}`; // Path to save the image
+
+          // Download image
+          if (image) {
+            try {
+              const imageResponse = await axios.get(image, {
+                responseType: 'arraybuffer',
+              });
+              fs.writeFileSync(imagePath, imageResponse.data);
+            } catch (error) {
+              console.error('Error downloading image:', error.message);
+            }
+          }
+
           newsArticles.push({
             headline,
             url,
-            image: image || '', // 이미지가 없으면 빈 문자열로 설정합니다.
+            image: image ? imageName : '', // Set image name if image exists
             content,
           });
         }
-      });
+      }).get();
 
-      // 요청 간격 설정 (1초 대기)
+      await Promise.all(promises);
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
@@ -52,13 +73,4 @@ async function fetchNews() {
   }
 }
 
-// 메인 함수 호출
 fetchNews();
-
-// const deleteDodo = (todoItem) =>{
-//     const newTodoList = [
-//     ...todoList]
-
-// new TodoList.splice(todoId);
-// setTodoList(newTodoList);
-// }

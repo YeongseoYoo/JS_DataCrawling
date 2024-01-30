@@ -13,6 +13,7 @@ async function fetchFunding() {
         });
 
         const data = response.data;
+        console.log(response.data);
         const fundings = data.data.list;
 
         fundings.forEach(funding => {
