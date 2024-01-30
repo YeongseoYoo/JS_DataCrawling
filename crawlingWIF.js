@@ -7,7 +7,7 @@ async function fetchFunding() {
         const response = await axios.post(baseUrl, {
             startNum: 0,
             order: "recommend",
-            limit: 48,
+            limit: 48,          //데이터 값. 1000개는 됨. 요청 10번이면 가능. but 10,000번이라는 큰 수를 넣으면 주지 않는다.
             categoryCode: "",
             endYn: ""
         });
